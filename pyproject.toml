@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "omni-cli"
+version = "0.1.0"
+description = ""
+authors = ["btraven <btraven@sdf.org>"]
+readme = "README.md"
+packages = [{include = "omni_cli"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "^8.1.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
