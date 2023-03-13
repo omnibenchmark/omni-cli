@@ -1,7 +1,11 @@
 import json
 
+import requests
+
 from .config import local_bench_data
 from .resources import Resource
+
+base = 'https://renkulab.io/knowledge-graph/datasets/'
 
 def load_resources():
     """
@@ -25,3 +29,16 @@ def describe(dataset_id):
 def dataset_list():
     res = load_resources()
     return [r for r in res if r.isData()]
+
+def download(uuid):
+    datasets = dataset_list()
+    print("downloading", uuid)
+    full_id = None
+    for d in datasets:
+        if d.identifier.hex.startswith(uuid):
+            full_id = d.identifier.hex
+
+    r = requests.get(base + full_id)
+    meta = r.json()
+    for part in meta.get('hasPart'):
+        print(part)

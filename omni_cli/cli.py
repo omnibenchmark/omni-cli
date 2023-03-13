@@ -4,6 +4,7 @@ from .config import init_dirs, init_rc
 from .sync import download_bench_data
 from .benchmarks import benchmark_list, stage_list
 from .datasets import describe as describe_dataset
+from .datasets import download as download_dataset
 from .datasets import dataset_list
 
 @click.group()
@@ -83,6 +84,7 @@ def add_dataset_commands():
     def download(uuid):
         """Download a dataset"""
         click.echo(f"Downloading dataset {uuid} NOT IMPLEMENTED")
+        download_dataset(uuid)
 
     dataset.add_command(download)
 
