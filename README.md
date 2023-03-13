@@ -40,3 +40,10 @@ omni_clustering:method_run
 omni_clustering:metric_run
 omni_clustering:summary_run
 ```
+
+## Useful pointers
+
+* [Desired Features (WIP)](https://hackmd.io/_1CE5qDTTH6Zdgu5iZwp6g)
+* [omnibenchmark-py](https://github.com/omnibenchmark/omnibenchmark-py/), a `python` library to interact with omnibenchmark.
+* [omnibus](https://github.com/shdam/omnibus), a `bash/R` tool to interact with `omnibenchmark` from the terminal.
+* [omni_site](https://renkulab.io/gitlab/omnibenchmark/omni_site), the static site generator that powers [https://omnibenchmark.org/](https://omnibenchmark.org/).
