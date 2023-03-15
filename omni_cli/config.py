@@ -26,7 +26,7 @@ def init_dirs():
 
 default_cfg = {
         'dirs': {
-            'data': '~/OmniBenchmark/data'
+            'datasets': '~/OmniBenchmark/datasets'
         }
 }
 
@@ -36,5 +36,10 @@ def init_rc():
             yaml.dump(default_cfg, f)
 
 def _get_config():
-    with os.path.open(rc_file) as f:
+    with open(rc_file) as f:
         return yaml.safe_load(f.read())
+
+def get_dataset_dir():
+    c = _get_config()
+    path = c.get('dirs').get('datasets')
+    return os.path.expanduser(path)

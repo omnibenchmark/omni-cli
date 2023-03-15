@@ -83,7 +83,7 @@ def add_dataset_commands():
     @click.argument('uuid')
     def download(uuid):
         """Download a dataset"""
-        click.echo(f"Downloading dataset {uuid} NOT IMPLEMENTED")
+        click.echo(f"Downloading dataset {uuid}")
         download_dataset(uuid)
 
     dataset.add_command(download)
