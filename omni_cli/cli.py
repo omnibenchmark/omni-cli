@@ -5,6 +5,7 @@ from .sync import download_bench_data
 from .benchmarks import benchmark_list, stage_list
 from .datasets import describe as describe_dataset
 from .datasets import download as download_dataset
+from .datasets import size as size_dataset
 from .datasets import dataset_list
 
 @click.group()
@@ -78,6 +79,15 @@ def add_dataset_commands():
         describe_dataset(uuid)
 
     dataset.add_command(describe)
+
+    @click.command()
+    @click.argument('uuid')
+    def size(uuid):
+        """Fetch size data for a dataset"""
+        click.echo(f"Size for dataset {uuid}")
+        size_dataset(uuid)
+
+    dataset.add_command(size)
 
     @click.command()
     @click.argument('uuid')

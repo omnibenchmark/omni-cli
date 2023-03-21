@@ -35,6 +35,36 @@ def dataset_list():
     res = load_resources()
     return [r for r in res if r.isData()]
 
+def fetch_dataset_meta(full_id):
+    r = requests.get(base + full_id)
+    meta = r.json()
+    return meta
+
+def size(uuid):
+    if len(uuid) < 8:
+        raise ValueError('DatasetID must be at least 8 characters long')
+
+    datasets = dataset_list()
+    full_id = None
+    for d in datasets:
+        if d.identifier.hex.startswith(uuid):
+            full_id = d.identifier.hex
+            break
+
+    meta = fetch_dataset_meta(full_id)
+    project = meta.get('project').get('_links')[0].get('href')
+    project_meta = requests.get(project).json()
+    stats = project_meta.get('statistics')
+
+    get_size = lambda var: humanize_size(stats.get(var))
+    repo_size = get_size('repositorySize')
+    lfs_size = get_size('lfsObjectsSize')
+    storage_size = get_size('storageSize')
+
+    print(f"repo:\t{repo_size}")
+    print(f"lfs:\t{lfs_size}")
+    print(f"all:\t{storage_size}")
+
 def download(uuid):
     if len(uuid) < 8:
         raise ValueError('DatasetID must be at least 8 characters long')
@@ -44,9 +74,9 @@ def download(uuid):
     for d in datasets:
         if d.identifier.hex.startswith(uuid):
             full_id = d.identifier.hex
+            break
 
-    r = requests.get(base + full_id)
-    meta = r.json()
+    meta = fetch_dataset_meta(full_id)
     parts = [part.get('atLocation') for part in meta.get('hasPart')]
 
     # TODO(btraven): I should check that I'm only copying the parts in here. For the time being,
@@ -84,3 +114,11 @@ def download(uuid):
 
 def project_name_from_repo(repo):
     return repo.split('/')[-1].split('.git')[0]
+
+def humanize_size(num, suffix="B"):
+    for unit in ["", "K", "M", "G", "T"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
+
