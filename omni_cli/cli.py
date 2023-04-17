@@ -7,6 +7,7 @@ from .datasets import describe as describe_dataset
 from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
+from .workflow import run as workflow_run
 
 @click.group()
 def run():
@@ -101,11 +102,22 @@ def add_dataset_commands():
 add_dataset_commands()
 run.add_command(dataset)
 
-@click.command()
+@click.group()
 def workflow():
     """Interacts with workflows"""
-    click.echo(f"Doing stuff with workflows NOT IMPLEMENTED")
+    pass
 
+def add_workflow_commands():
+    @click.command()
+    def run():
+        """Run workflow"""
+        click.echo(f"Running workflow")
+        result = workflow_run()
+        click.echo(result)
+
+    workflow.add_command(run)
+
+add_workflow_commands()
 run.add_command(workflow)
 
-
+run.add_command(workflow)
