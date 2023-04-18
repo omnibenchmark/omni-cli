@@ -7,27 +7,36 @@ import tempfile
 
 import requests
 
-
+from .config import get_graph_dir, is_graph_enabled
 from .docker import is_docker
+from .graph import load_triples
 
 from git import Repo
 from renku.command.graph import export_graph_command
 
 GRAPH_HOST_PATH = "/tmp/omni-graphs"
 GRAPH_CONT_PATH = "/graph"
-GRAPH_JSON = "graph.json"
+GRAPH_JSON = "graph.jsonl"
 
-def run():
+def run(sparql=None):
     if is_docker():
         return run_from_docker(export=True)
     else:
         print("> running in host")
         shutil.rmtree(GRAPH_HOST_PATH, ignore_errors=True)
         os.makedirs(GRAPH_HOST_PATH, exist_ok=True)
+
+        # --------------------------------------------------------------
         # TODO get image from cli
+        # we should automate these images, see if they exist localy etc
+        # --------------------------------------------------------------
         docker_image = "renku-csf-ext"
+
         out = run_from_host_in_docker(docker_image)
-        summarize_graph()
+        if is_graph_enabled():
+            load_graph()
+        if sparql is not None:
+            upload_graph(sparql)
         return out
 
 def run_from_docker(full=True, export=False):
@@ -42,7 +51,7 @@ def run_from_host_in_docker(docker_image):
             "--rm", "-v", "{graph_host}:{graph_container}".format(
                 graph_host=GRAPH_HOST_PATH,
                 graph_container=GRAPH_CONT_PATH),
-            "-v", ".:/home/rstudio/work",
+            "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
             "-e", "OMNICLI_GRAPH_PATH={graph_container}".format(graph_container=GRAPH_CONT_PATH),
             docker_image])
     return p.stdout
@@ -70,12 +79,24 @@ def export_graph(full=True):
     else:
         return result
 
+def upload_graph(sparql):
+    print("NOT IMPLEMENTED: upload graph to endpoint:", sparql)
+
 def get_graph_output_dir():
     return os.environ.get('OMNICLI_GRAPH_PATH', None)
 
-def summarize_graph():
+def load_graph():
+    _serialize_graph()
+    _load_in_local_graph_store()
+
+def _serialize_graph():
     from rdflib import Graph
     g = Graph()
-    g.parse("file://{path}/graph.jsonl".format(path=GRAPH_HOST_PATH), format="json-ld")
+    g.parse(f"file://{GRAPH_HOST_PATH}/{GRAPH_JSON}", format="json-ld")
+    g.serialize(f"file://{GRAPH_HOST_PATH}/graph.ttl")
     graph_len = len(list(g.triples((None, None, None))))
     print("> Got", graph_len, "triples")
+
+def _load_in_local_graph_store():
+    path = get_graph_dir()
+    load_triples(f"{GRAPH_HOST_PATH}/graph.ttl")

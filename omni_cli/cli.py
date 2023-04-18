@@ -1,13 +1,17 @@
 import click
 
-from .config import init_dirs, init_rc
-from .sync import download_bench_data
 from .benchmarks import benchmark_list, stage_list
+from .config import init_dirs, init_rc
+from .config import enable_graph, disable_graph, is_graph_enabled
 from .datasets import describe as describe_dataset
 from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
+from .graph import run_local_graph, destroy_local_graph
+from .sync import download_bench_data
 from .workflow import run as workflow_run
+
+ENV_SPARQL = 'SPARQL_ENDPOINT'
 
 @click.group()
 def run():
@@ -109,10 +113,11 @@ def workflow():
 
 def add_workflow_commands():
     @click.command()
-    def run():
+    @click.argument('sparql', envvar=ENV_SPARQL, required=False)
+    def run(sparql):
         """Run workflow"""
         click.echo(f"Running workflow")
-        result = workflow_run()
+        result = workflow_run(sparql=sparql)
         click.echo(result)
 
     workflow.add_command(run)
@@ -120,4 +125,48 @@ def add_workflow_commands():
 add_workflow_commands()
 run.add_command(workflow)
 
-run.add_command(workflow)
+@click.group()
+def graph():
+    """Local knowledge graph operations"""
+    pass
+
+def add_graph_commands():
+
+    @click.command()
+    def enable():
+        click.echo(f"Enabling local SPARQL endpoint")
+        enable_graph()
+
+    graph.add_command(enable)
+
+    @click.command()
+    def disable():
+        click.echo(f"Disabling local SPARQL endpoint")
+        disable_graph()
+
+    graph.add_command(disable)
+
+    @click.command()
+    def status():
+        enabled = is_graph_enabled()
+        status = 'enabled' if enabled else 'disabled'
+        click.echo(f"Status: {status}")
+
+    graph.add_command(status)
+
+    @click.command()
+    def run():
+        click.echo(f"Running local SPARQL endpoint")
+        run_local_graph()
+
+    graph.add_command(run)
+
+    @click.command()
+    def destroy():
+        click.echo(f"Destroy local graph")
+        destroy_local_graph()
+
+    graph.add_command(destroy)
+
+add_graph_commands()
+run.add_command(graph)
