@@ -859,6 +859,26 @@ files = [
 ]
 
 [[package]]
+name = "importlib-metadata"
+version = "6.5.0"
+description = "Read metadata from Python packages"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "importlib_metadata-6.5.0-py3-none-any.whl", hash = "sha256:03ba783c3a2c69d751b109fc0c94a62c51f581b3d6acf8ed1331b6d5729321ff"},
+    {file = "importlib_metadata-6.5.0.tar.gz", hash = "sha256:7a8bdf1bc3a726297f5cfbc999e6e7ff6b4fa41b26bba4afc580448624460045"},
+]
+
+[package.dependencies]
+zipp = ">=0.5"
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+perf = ["ipython"]
+testing = ["flake8 (<5)", "flufl.flake8", "importlib-resources (>=1.3)", "packaging", "pyfakefs", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)", "pytest-perf (>=0.9.2)"]
+
+[[package]]
 name = "inject"
 version = "4.3.1"
 description = "Python dependency injection framework"
@@ -883,6 +903,54 @@ files = [
 
 [package.dependencies]
 six = "*"
+
+[[package]]
+name = "iteration-utilities"
+version = "0.11.0"
+description = "Utilities based on Pythons iterators and generators."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "iteration_utilities-0.11.0-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:17c9418d967fd8020211ebd5770332fc6cf11800eec446a31fcad4fe96fe4009"},
+    {file = "iteration_utilities-0.11.0-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:243de0d75c54200350fe2f1aa4c08471f95fe4ca77fca741ae50b495ccd7420c"},
+    {file = "iteration_utilities-0.11.0-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:a074f8bbbfd75b9980819a5f342e90069c421dffebc66724bccc84034c9cdcd2"},
+    {file = "iteration_utilities-0.11.0-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:e046738b578a9c7f7ca96a5d7554191d12f22a897ada78ab4d5ac1a92afc47ba"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:c4bb9be1d0ac15b13b0c2f4ada6159a32067f6e1af6ce65e3c72fda4deab4478"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:37f427f2682aad3b27afab8edcfa8002268d1eab30c4957200a004af3d5f5b0e"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:0dc2aed43691d38052fe99d94f04886324818d058fb030068e14343008fe856b"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:f06c4862911aad6c21529ecc0d6744048712303eb37afecc9ee5ffa804ba6614"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:e7ad14f9bd0bb6d69b6ac30811decedcb71a16e2d4e528a469fe865ad8d57305"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-win32.whl", hash = "sha256:4005c4cbfaacf9897367dc92055e85d4990d5ab43a3234ff5be5b222e42fd511"},
+    {file = "iteration_utilities-0.11.0-cp36-cp36m-win_amd64.whl", hash = "sha256:a9981e55e560389079201b97b10b885050bdfc2cd55d76a830307899a6c475f5"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:112b615d596c939a427f08943c0e5594bca672bd67dc7ac928deb4a6a9637df7"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:b6541b081a95a1c8b8a0ebb08d2ae49e649b3d8e75bb55e1b4eed7687561bd09"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:1c9a1d58ca2f5260eed057e1b9d0b08f62a8e42153224476598f2dd079ae765e"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:ae7cebc811843de5868400a8cc7e401569452e9cbaa09ebfccc4882f2507c36a"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:46485bb3c7db9267014a1453009c612fb658d85ba4a41bee01346663b3797de6"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-win32.whl", hash = "sha256:3d154511cc177872bb843dcc789591f23214bc9d568db542f95c3cf4cc78b4eb"},
+    {file = "iteration_utilities-0.11.0-cp37-cp37m-win_amd64.whl", hash = "sha256:3f276186d2afc979c86ab4f505e398f9f206a8ad42c510d6000b1ed49748ca74"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:07edb8a7553fda1cfb59e4d761f7e03b3607b948cbd3549250bcb489a7bb0f81"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:08a00db7beac8647b00c5d9968e14235b33d387f4e2900ae1b1a4cfbf68894bb"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:d10a7a6564b32a2266b67994264151e073f77463145b0cac8245cbd1da1b0013"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:f586a65e72a1120c9427e1903068268f11f0d73af0f56a247419f33ca0d4c3db"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:d2f5e4acce15dbb731b71f9d109c329eee7bcb4d64c1bd9cc2669afca542ede8"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-win32.whl", hash = "sha256:c37f44ee027d35cb25527260ccd4dcdd23ed6015f957dab4dc1398692e6df7a1"},
+    {file = "iteration_utilities-0.11.0-cp38-cp38-win_amd64.whl", hash = "sha256:47244350489474d25f516286554a3d9df235505e759ce7381ec1c8acf0734ac4"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:15f7c88cdaaed2346e086cf993a283a694b74613039aa3d931279e0e40e9dca2"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-manylinux1_i686.whl", hash = "sha256:1666e00a4058620f5d2ca2de12927dc1819e36e1f37c8cfa17050c4db9d6703a"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:2593385dbe50636c3fec5a9c73a3413c265062608deba37dc54b7be83c23d663"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:4805bda63753ad446af8c69035f7b6a1554176147d636a27f8a1f0ad297c405f"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:7aecba49b749630f30860535156b50399f23175f91fbb2a9849c3b41d40acac2"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-win32.whl", hash = "sha256:bd40f6af97e887950377777d7ce69bb47356a3f7d29f65f95687f4aaaf33a783"},
+    {file = "iteration_utilities-0.11.0-cp39-cp39-win_amd64.whl", hash = "sha256:72020ff072f61a05974d82e5850dab3088339907e34c0fe20d8a6bf373e0ddbe"},
+    {file = "iteration_utilities-0.11.0.tar.gz", hash = "sha256:f91f41a2549e9a7e40ff5460fdf9033b6ee5b305d9be77943b63a554534c2a77"},
+]
+
+[package.extras]
+all = ["numpydoc", "pytest", "sphinx"]
+doc = ["numpydoc", "sphinx"]
+test = ["pytest"]
 
 [[package]]
 name = "jinja2"
@@ -1229,6 +1297,34 @@ files = [
     {file = "numpy-1.21.1-pp37-pypy37_pp73-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:2d4d1de6e6fb3d28781c73fbde702ac97f03d79e4ffd6598b880b2d95d62ead4"},
     {file = "numpy-1.21.1.zip", hash = "sha256:dff4af63638afcc57a3dfb9e4b26d434a7a602d225b42d746ea7fe2edf1342fd"},
 ]
+
+[[package]]
+name = "omnibenchmark"
+version = "0.0.42"
+description = "Omnibenchmark core utilities: Setup and running of continous benchmarking modules as part of omnibenchmark"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = []
+develop = false
+
+[package.dependencies]
+iteration_utilities = "*"
+lxml = "*"
+python-gitlab = "*"
+renku = "*"
+requests = "*"
+trycast = "*"
+typeguard = "*"
+
+[package.extras]
+dev = ["black", "bumpver", "mypy", "pytest"]
+
+[package.source]
+type = "git"
+url = "https://github.com/omnibenchmark/omnibenchmark-py"
+reference = "renku_2_3_0"
+resolved_reference = "49eb98d4362284394c54294de2c8245fddc763b2"
 
 [[package]]
 name = "ordered-set"
@@ -2246,6 +2342,38 @@ test = ["mock"]
 testing = ["coverage", "mock", "nose"]
 
 [[package]]
+name = "trycast"
+version = "1.0.0"
+description = ""
+category = "main"
+optional = false
+python-versions = ">=3.7.4,<4.0.0"
+files = [
+    {file = "trycast-1.0.0-py3-none-any.whl", hash = "sha256:93fcbb922ef3a22c587f636ed8c128266bb2615171983dbf2f7edd3ae86afb10"},
+    {file = "trycast-1.0.0.tar.gz", hash = "sha256:72dd9be7553337cfba04809646dc144ddd6e3a54f4213ab8b76a14b4a1882e04"},
+]
+
+[[package]]
+name = "typeguard"
+version = "3.0.2"
+description = "Run-time type checker for Python"
+category = "main"
+optional = false
+python-versions = ">=3.7.4"
+files = [
+    {file = "typeguard-3.0.2-py3-none-any.whl", hash = "sha256:bbe993854385284ab42fd5bd3bee6f6556577ce8b50696d6cb956d704f286c8e"},
+    {file = "typeguard-3.0.2.tar.gz", hash = "sha256:fee5297fdb28f8e9efcb8142b5ee219e02375509cd77ea9d270b5af826358d5a"},
+]
+
+[package.dependencies]
+importlib-metadata = {version = ">=3.6", markers = "python_version < \"3.10\""}
+typing-extensions = {version = ">=4.4.0", markers = "python_version < \"3.11\""}
+
+[package.extras]
+doc = ["packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme"]
+test = ["mypy (>=0.991)", "pytest (>=7)"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2453,6 +2581,22 @@ docs = ["Sphinx", "repoze.sphinx.autointerface", "sphinx-rtd-theme"]
 msgpack = ["msgpack-python"]
 test = ["ZConfig", "ZODB (>=5.5.1)", "ZopeUndo", "manuel", "mock", "msgpack (<1)", "transaction", "zdaemon", "zope.testing", "zope.testrunner"]
 uvloop = ["uvloop (>=0.5.1)"]
+
+[[package]]
+name = "zipp"
+version = "3.15.0"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "zipp-3.15.0-py3-none-any.whl", hash = "sha256:48904fc76a60e542af151aded95726c1a5c34ed43ab4134b597665c86d7ad556"},
+    {file = "zipp-3.15.0.tar.gz", hash = "sha256:112929ad649da941c23de50f356a2b5570c954b65150642bccdd66bf194d224b"},
+]
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [[package]]
 name = "zodb"
@@ -2676,4 +2820,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "685ec701655fc0f11591c72d2251ae2b28982bc3b5abd0034b7f2437e8d8e11a"
+content-hash = "35fe30d812b0fda6e4e3c6d20ddc2995983c5ff1358eef62e8271a11c4624eda"
