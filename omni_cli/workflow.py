@@ -12,25 +12,28 @@ from .docker import is_docker
 from .graph import load_triples
 
 from git import Repo
+
+from omnibenchmark.utils.build_omni_object import get_omni_object_from_yaml
+from omnibenchmark.renku_commands.general import renku_save
 from renku.command.graph import export_graph_command
 
 GRAPH_HOST_PATH = "/tmp/omni-graphs"
 GRAPH_CONT_PATH = "/graph"
 GRAPH_JSON = "graph.jsonl"
 
-def run(sparql=None):
+def run(docker_image=None, sparql=None):
+    # --------------------------------------------------------------
+    # we should automate these images, see if they exist localy etc
+    if docker_image is None:
+        docker_image = "renku-csf-ext"
+    # --------------------------------------------------------------
+
     if is_docker():
         return run_from_docker(export=True)
     else:
         print("> running in host")
         shutil.rmtree(GRAPH_HOST_PATH, ignore_errors=True)
         os.makedirs(GRAPH_HOST_PATH, exist_ok=True)
-
-        # --------------------------------------------------------------
-        # TODO get image from cli
-        # we should automate these images, see if they exist localy etc
-        # --------------------------------------------------------------
-        docker_image = "renku-csf-ext"
 
         out = run_from_host_in_docker(docker_image)
         if is_graph_enabled():
@@ -41,7 +44,14 @@ def run(sparql=None):
 
 def run_from_docker(full=True, export=False):
     print("> running in docker")
-    # TODO do actual run    
+    oo = get_omni_object_from_yaml('src/config.yaml')
+    oo.create_dataset()
+    oo.run_renku()
+    oo.update_result_dataset()
+
+    # TODO: need to check if the repo has changed within the container
+    # the best strategy is probably to mount data/ as a rw volume
+
     if export:
         return export_graph(full=True)
 

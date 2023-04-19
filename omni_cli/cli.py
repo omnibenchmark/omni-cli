@@ -114,10 +114,11 @@ def workflow():
 def add_workflow_commands():
     @click.command()
     @click.argument('sparql', envvar=ENV_SPARQL, required=False)
-    def run(sparql):
+    @click.option('-i', '--image', 'image')
+    def run(image, sparql):
         """Run workflow"""
-        click.echo(f"Running workflow")
-        result = workflow_run(sparql=sparql)
+        click.echo(f"Running workflow!!")
+        result = workflow_run(docker_image=image, sparql=sparql)
         click.echo(result)
 
     workflow.add_command(run)
