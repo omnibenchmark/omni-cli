@@ -8,7 +8,7 @@ import tempfile
 import requests
 
 from .config import get_graph_dir, is_graph_enabled
-from .docker import is_docker
+from .docker import is_docker, get_omni_image
 from .graph import load_triples
 
 from git import Repo
@@ -17,21 +17,24 @@ from omnibenchmark.utils.build_omni_object import get_omni_object_from_yaml
 from omnibenchmark.renku_commands.general import renku_save
 from renku.command.graph import export_graph_command
 
+# TODO(btraven): we could move these dirs into a omnibench tmp folder
 GRAPH_HOST_PATH = "/tmp/omni-graphs"
 GRAPH_CONT_PATH = "/graph"
 GRAPH_JSON = "graph.jsonl"
 
 def run(docker_image=None, sparql=None, dirty=False):
-    # --------------------------------------------------------------
-    # we should automate these images, see if they exist localy etc
+
     if docker_image is None:
-        docker_image = "renku-csf-ext"
-    # --------------------------------------------------------------
+        # If no image is passed explicitely, we use the image naming convention
+        # that the user should have built by running `omni_cli docker build`.
+        # We could check if that image exists in the local docker registry, and fail early
+        # if not found.
+        docker_image = get_omni_image()
 
     if is_docker():
         return run_from_docker(export=True, dirty=dirty)
     else:
-        print("> running in host")
+        print("> running in host...")
         shutil.rmtree(GRAPH_HOST_PATH, ignore_errors=True)
         os.makedirs(GRAPH_HOST_PATH, exist_ok=True)
 
@@ -44,6 +47,10 @@ def run(docker_image=None, sparql=None, dirty=False):
 
 def run_from_docker(full=True, export=False, dirty=False):
     print(f"> running in docker. export={export} dirty={dirty}")
+    print("> cwd:", os.getcwd())
+    p = subprocess.run(["git", "lfs", "install", "--local"])
+    print(p.stdout)
+
     oo = get_omni_object_from_yaml('src/config.yaml')
     oo.create_dataset()
     oo.run_renku()
@@ -64,26 +71,27 @@ def run_from_docker(full=True, export=False, dirty=False):
         return export_graph(full=True)
 
 def run_from_host_in_docker(docker_image, dirty):
-    p = subprocess.run([
-            "git", "lfs", "install", "--local"])
-    print(p.stdout)
-    dirty = 1 if dirty else 0
+    is_dirty = 1 if dirty else 0
     if dirty:
-        p = subprocess.run([
+        cmd = [
                 "docker", "run",
                 "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
                 "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
                 "-v", ".:/home/rstudio/orig", # FIXME hardcoded user!!
-                "-e", f"OMNICLI_DIRTY={dirty}",
-                docker_image])
+                "-e", f"OMNICLI_DIRTY={is_dirty}",
+                docker_image
+        ]
     else:
-        p = subprocess.run([
+        cmd = [
                 "docker", "run",
                 "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
                 "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
                 "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
-                "-e", f"OMNICLI_DIRTY={dirty}",
-                docker_image])
+                "-e", f"OMNICLI_DIRTY={is_dirty}",
+                docker_image
+        ]
+    print(cmd)
+    p = subprocess.run(cmd)
     return p.stdout
 
 def export_graph(full=True):

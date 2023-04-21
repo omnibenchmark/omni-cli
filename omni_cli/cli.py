@@ -7,6 +7,7 @@ from .datasets import describe as describe_dataset
 from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
+from .docker import docker_build
 from .graph import run_local_graph, destroy_local_graph
 from .sync import download_bench_data
 from .workflow import run as workflow_run
@@ -174,3 +175,21 @@ def add_graph_commands():
 
 add_graph_commands()
 run.add_command(graph)
+
+@click.group()
+def docker():
+    """Manipualate local docker images used for workflow runs"""
+    pass
+
+def add_docker_commands():
+
+    @click.command()
+    def build():
+        """Build a docker image suitable for running omnibenchmark workflows with omni-cli"""
+        click.echo(f"Building local docker image")
+        docker_build()
+
+    docker.add_command(build)
+
+add_docker_commands()
+run.add_command(docker)
