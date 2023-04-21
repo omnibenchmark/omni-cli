@@ -1,4 +1,4 @@
 image:
-	docker build -t omni-cli -f dockerfile.omnicli .
+	docker build --no-cache -t omni-cli -f dockerfile.omnicli .
 
 

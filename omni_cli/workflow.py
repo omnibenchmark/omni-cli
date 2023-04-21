@@ -21,7 +21,7 @@ GRAPH_HOST_PATH = "/tmp/omni-graphs"
 GRAPH_CONT_PATH = "/graph"
 GRAPH_JSON = "graph.jsonl"
 
-def run(docker_image=None, sparql=None):
+def run(docker_image=None, sparql=None, dirty=False):
     # --------------------------------------------------------------
     # we should automate these images, see if they exist localy etc
     if docker_image is None:
@@ -29,21 +29,21 @@ def run(docker_image=None, sparql=None):
     # --------------------------------------------------------------
 
     if is_docker():
-        return run_from_docker(export=True)
+        return run_from_docker(export=True, dirty=dirty)
     else:
         print("> running in host")
         shutil.rmtree(GRAPH_HOST_PATH, ignore_errors=True)
         os.makedirs(GRAPH_HOST_PATH, exist_ok=True)
 
-        out = run_from_host_in_docker(docker_image)
+        out = run_from_host_in_docker(docker_image, dirty=dirty)
         if is_graph_enabled():
             load_graph()
         if sparql is not None:
             upload_graph(sparql)
         return out
 
-def run_from_docker(full=True, export=False):
-    print("> running in docker")
+def run_from_docker(full=True, export=False, dirty=False):
+    print(f"> running in docker. export={export} dirty={dirty}")
     oo = get_omni_object_from_yaml('src/config.yaml')
     oo.create_dataset()
     oo.run_renku()
@@ -55,15 +55,17 @@ def run_from_docker(full=True, export=False):
     if export:
         return export_graph(full=True)
 
-def run_from_host_in_docker(docker_image):
+def run_from_host_in_docker(docker_image, dirty):
     p = subprocess.run([
             "git", "lfs", "install", "--local"])
     print(p.stdout)
+    dirty = 1 if dirty else 0
     p = subprocess.run([
             "docker", "run",
             "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
             "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
             "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
+            "-e", f"OMNICLI_DIRTY={dirty}",
             docker_image])
     return p.stdout
 

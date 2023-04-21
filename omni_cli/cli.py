@@ -114,11 +114,14 @@ def workflow():
 def add_workflow_commands():
     @click.command()
     @click.argument('sparql', envvar=ENV_SPARQL, required=False)
-    @click.option('-i', '--image', 'image')
-    def run(image, sparql):
+    @click.option('-i', '--image', 'image', help="Docker image to run workflow from")
+    @click.option('--commit/--no-commit', is_flag=True, default=True, show_default=True,
+                  help="--no-commit leaves outputs in a dirty repo. This option skips the renku commits for each run, and is intented to debug the workflow.")
+    def run(image, sparql, commit):
         """Run workflow"""
-        click.echo(f"Running workflow!!")
-        result = workflow_run(docker_image=image, sparql=sparql)
+        click.echo(f"Running workflow")
+        dirty = not commit
+        result = workflow_run(docker_image=image, sparql=sparql, dirty=dirty)
         click.echo(result)
 
     workflow.add_command(run)
