@@ -57,12 +57,13 @@ def run_from_docker(full=True, export=False):
 
 def run_from_host_in_docker(docker_image):
     p = subprocess.run([
+            "git", "lfs", "install", "--local"])
+    print(p.stdout)
+    p = subprocess.run([
             "docker", "run",
-            "--rm", "-v", "{graph_host}:{graph_container}".format(
-                graph_host=GRAPH_HOST_PATH,
-                graph_container=GRAPH_CONT_PATH),
+            "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
             "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
-            "-e", "OMNICLI_GRAPH_PATH={graph_container}".format(graph_container=GRAPH_CONT_PATH),
+            "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
             docker_image])
     return p.stdout
 
