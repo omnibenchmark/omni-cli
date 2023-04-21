@@ -49,8 +49,16 @@ def run_from_docker(full=True, export=False, dirty=False):
     oo.run_renku()
     oo.update_result_dataset()
 
-    # TODO: need to check if the repo has changed within the container
-    # the best strategy is probably to mount data/ as a rw volume
+    if dirty:
+        # When we receive the dirty flag, we expect the following conditions to be met:
+        # 1. the original repo is exposed in ../orig
+        # 2. we have permissions to write to ../orig
+        print("> copying dirty data dir to original repo")
+        # TODO check if repo is mounted
+        shutil.copytree('./data', '../orig/data', dirs_exist_ok=True)
+        # The end result after this action is that we keep the renku_run commits in the current dir
+        # but we just copy a "dirty" data repo to the ../orig folder.
+        # We assume that ../orig has been mounted by docker as a rw volume.
 
     if export:
         return export_graph(full=True)
@@ -60,13 +68,22 @@ def run_from_host_in_docker(docker_image, dirty):
             "git", "lfs", "install", "--local"])
     print(p.stdout)
     dirty = 1 if dirty else 0
-    p = subprocess.run([
-            "docker", "run",
-            "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
-            "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
-            "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
-            "-e", f"OMNICLI_DIRTY={dirty}",
-            docker_image])
+    if dirty:
+        p = subprocess.run([
+                "docker", "run",
+                "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
+                "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
+                "-v", ".:/home/rstudio/orig", # FIXME hardcoded user!!
+                "-e", f"OMNICLI_DIRTY={dirty}",
+                docker_image])
+    else:
+        p = subprocess.run([
+                "docker", "run",
+                "--rm", "-v", f"{GRAPH_HOST_PATH}:{GRAPH_CONT_PATH}",
+                "-v", ".:/home/rstudio/work", # FIXME hardcoded user!!
+                "-e", f"OMNICLI_GRAPH_PATH={GRAPH_CONT_PATH}",
+                "-e", f"OMNICLI_DIRTY={dirty}",
+                docker_image])
     return p.stdout
 
 def export_graph(full=True):

@@ -1,4 +1,6 @@
-FROM omni-data
+# syntax=docker/dockerfile:1
+
+FROM omni-data as lfs
 ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
@@ -6,6 +8,10 @@ RUN apt-get update && apt-get install -y \
   git-lfs \
   && rm -rf /var/lib/apt/lists/*
 USER ${NB_USER}
+
+FROM lfs
+
+RUN mkdir $HOME/orig
 
 # For development
 RUN pip install -U pip
