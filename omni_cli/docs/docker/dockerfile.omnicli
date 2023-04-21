@@ -1,0 +1,17 @@
+FROM omni-data
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+RUN apt-get update && apt-get install -y \
+  git-lfs \
+  && rm -rf /var/lib/apt/lists/*
+USER ${NB_USER}
+
+RUN pip install -U pip
+RUN pip install git+https://renkulab.io/gitlab/btraven/omni-cli/
+RUN pip install poetry
+
+COPY entrypoint.sh .
+
+ENTRYPOINT [ "./entrypoint.sh" ]
+
