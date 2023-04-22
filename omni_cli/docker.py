@@ -12,6 +12,7 @@ def is_docker():
     cgroup = Path('/proc/self/cgroup')
     return Path('/.dockerenv').is_file() or cgroup.is_file() and 'docker' in cgroup.read_text()
 
+
 # TODO: get force flag
 def docker_build():
     top = _get_repo_toplevel()
@@ -66,6 +67,13 @@ cd work && omni_cli workflow run $ARGS"""
 
     os.remove(entry)
     os.remove(dockerfile)
+
+def docker_shell():
+    img = get_omni_image()
+    cwd = os.getcwd()
+    cmd = ["docker", "run", "--rm", "-v", f"{cwd}:/home/rstudio/work", "--entrypoint", "bash", "-it", img]
+    print(cmd)
+    subprocess.run(cmd)
 
 
 def _get_repo_toplevel():

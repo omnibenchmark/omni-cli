@@ -7,7 +7,7 @@ from .datasets import describe as describe_dataset
 from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
-from .docker import docker_build
+from .docker import docker_build, docker_shell
 from .graph import run_local_graph, destroy_local_graph
 from .sync import download_bench_data
 from .workflow import run as workflow_run
@@ -190,6 +190,14 @@ def add_docker_commands():
         docker_build()
 
     docker.add_command(build)
+
+    @click.command()
+    def shell():
+        """Starts a bash sehll in the default docker image for a given project"""
+        click.echo("Starting shell within docker container for project")
+        docker_shell()
+
+    docker.add_command(shell)
 
 add_docker_commands()
 run.add_command(docker)
