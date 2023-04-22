@@ -21,6 +21,7 @@ from renku.command.graph import export_graph_command
 GRAPH_HOST_PATH = "/tmp/omni-graphs"
 GRAPH_CONT_PATH = "/graph"
 GRAPH_JSON = "graph.jsonl"
+GRAPH_PATH_ENV = "OMNICLI_GRAPH_PATH"
 
 def run(docker_image=None, sparql=None, dirty=False):
 
@@ -54,6 +55,7 @@ def run_from_docker(full=True, export=False, dirty=False):
     oo = get_omni_object_from_yaml('src/config.yaml')
     oo.create_dataset()
     oo.run_renku()
+    print("renku run done")
     oo.update_result_dataset()
 
     if dirty:
@@ -121,7 +123,7 @@ def upload_graph(sparql):
     print("NOT IMPLEMENTED: upload graph to endpoint:", sparql)
 
 def get_graph_output_dir():
-    return os.environ.get('OMNICLI_GRAPH_PATH', None)
+    return os.environ.get(GRAPH_PATH_ENV, None)
 
 def load_graph():
     _serialize_graph()

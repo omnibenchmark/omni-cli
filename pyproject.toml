@@ -1,10 +1,24 @@
 [tool.poetry]
 name = "omni-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["btraven <btraven@sdf.org>"]
 readme = "README.md"
 packages = [{include = "omni_cli"}]
+homepage = "https://renkulab.io/gitlab/btraven/omni-cli/"
+repository = "https://renkulab.io/gitlab/btraven/omni-cli/"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Development Status :: 3 - Alpha",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -12,14 +26,15 @@ click = "^8.1.3"
 requests = "<2.28.2"
 pyyaml = "^6.0"
 pydantic = "^1.10.2"
-renku = "^2.3.2"
+calamus = {git = "https://github.com/btraven00/calamus", rev = "master"}
 omnibenchmark = {git = "https://github.com/omnibenchmark/omnibenchmark-py", rev = "renku_2_3_0"}
+renku = "^2.3.2"
 
 [tool.poetry.scripts]
 omni_cli = 'omni_cli.cli:run'
 
 [tool.poetry.plugins."renku"]
-activity_annotations = 'omni_cli.plugin.activity_annotations'
+activity_annotator = 'omni_cli.annotator.plugin'
 
 [build-system]
 requires = ["poetry-core"]
