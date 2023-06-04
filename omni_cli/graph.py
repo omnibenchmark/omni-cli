@@ -26,6 +26,8 @@ def load_triples(triples):
         oxigraph_missing_notice()
         return
     graph_path = get_graph_dir()
+    if not os.path.isdir(graph_path):
+        os.makedirs(graph_path, exist_ok=True)
     p = subprocess.run([
         binary, "--location", graph_path, "load",
         "--file", triples])

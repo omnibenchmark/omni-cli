@@ -29,6 +29,7 @@ pydantic = "^1.10.2"
 calamus = {git = "https://github.com/btraven00/calamus", rev = "master"}
 omnibenchmark = {git = "https://github.com/omnibenchmark/omnibenchmark-py", rev = "renku_2_3_0"}
 renku = "^2.3.2"
+sparqlwrapper = "^2.0.0"
 
 [tool.poetry.scripts]
 omni_cli = 'omni_cli.cli:run'

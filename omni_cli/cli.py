@@ -9,6 +9,7 @@ from .datasets import size as size_dataset
 from .datasets import dataset_list
 from .docker import docker_build, docker_shell
 from .graph import run_local_graph, destroy_local_graph
+from .sparql import query_generations, query_last_generation
 from .sync import download_bench_data
 from .workflow import run as workflow_run
 
@@ -178,7 +179,7 @@ run.add_command(graph)
 
 @click.group()
 def docker():
-    """Manipualate local docker images used for workflow runs"""
+    """Manipulate local docker images used for workflow runs"""
     pass
 
 def add_docker_commands():
@@ -193,7 +194,7 @@ def add_docker_commands():
 
     @click.command()
     def shell():
-        """Starts a bash sehll in the default docker image for a given project"""
+        """Starts a bash shell in the default docker image for a given project"""
         click.echo("Starting shell within docker container for project")
         docker_shell()
 
@@ -201,3 +202,27 @@ def add_docker_commands():
 
 add_docker_commands()
 run.add_command(docker)
+
+@click.group()
+def query():
+    """Query the local graph"""
+    pass
+
+def add_query_commands():
+
+    @click.command()
+    def generations():
+        """Query local graph for recent generations"""
+        query_generations()
+
+    query.add_command(generations)
+
+    @click.command()
+    def last_generation():
+        """Query local graph for the most recent generation"""
+        query_last_generation()
+
+    query.add_command(last_generation)
+
+add_query_commands()
+run.add_command(query)
