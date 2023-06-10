@@ -63,6 +63,23 @@ SELECT ?part ?source ?checksum ?modified ?keywords WHERE {
 }
 """
 
+epochForOrchestratorQuery = """
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX omni: <http://omnibenchmark.org/ns#>
+
+SELECT ?run ?name ?epoch ?start ?end WHERE {
+  ?run omni:hasName "$name" .
+  ?run omni:hasEpoch ?epoch.
+  ?run prov:startedAtTime ?start.
+  OPTIONAL {?run prov:endedAtTime ?end.}
+} 
+ORDER BY DESC(?start)
+LIMIT 10
+"""
+
+
 # TODO: checksum and atLocation do not return literal in rdflib query result
 
 #?files prov:atLocation ?loc .
@@ -73,6 +90,18 @@ def fmt_date(ts):
 
 def doQuery(query):
     return rdflib.Graph().query(query)
+
+def prepareAndSubmitQueryFromTemplate(template, ctx):
+    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
+    sparql.setReturnFormat(JSON)
+    q = Template(template)
+    query = q.substitute(**ctx)
+    sparql.setQuery(query)
+    try:
+        result = sparql.queryAndConvert()
+    except Exception as e:
+        print("error:", e)
+    return result
 
 def query_generations():
     result = doQuery(genListQuery)
@@ -92,31 +121,45 @@ def query_generations():
 def query_last_generation():
     # TODO: we could derive the last-gen as a nested query, instead
     # of issuing two different queries.
+
     r = doQuery(lastGenQuery)
     generation = tuple(r)[0].gen
-
-    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
-    sparql.setReturnFormat(JSON)
-
-    q = Template(filesForGenerationQuery)
-    query = q.substitute(generation=generation)
-    sparql.setQuery(query)
+    ctx = {'generation': generation}
+    result = prepareAndSubmitQueryFromTemplate(filesForGenerationQuery, ctx)
 
     data = []
 
-    try:
-        ret = sparql.queryAndConvert()
-        for r in ret["results"]["bindings"]:
-            date_str = r['modified']['value']
-            data.append({
-                'file': r['source']['value'],
-                'last_modified': fmt_date(datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S%z")),
-                'md5sum': r['checksum']['value'][:8],
-                'keywords': r['keywords']['value'],
-            })
-    except Exception as e:
-        print("error:", e)
+    for r in result["results"]["bindings"]:
+        date_str = r['modified']['value']
+        data.append({
+            'file': r['source']['value'],
+            'last_modified': fmt_date(datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S%z")),
+            'md5sum': r['checksum']['value'][:8],
+            'keywords': r['keywords']['value'],
+        })
 
     print(tabulate(
         data, showindex=True,
         headers={"file": "file", "last_modified": "modified", "md5sum": "md5", "keywords": "keywords"}))
+
+
+
+def query_orchestrator_by_name(name):
+    ctx = {'name': name}
+    result = prepareAndSubmitQueryFromTemplate(epochForOrchestratorQuery, ctx)
+
+    data = []
+
+    for r in result["results"]["bindings"]:
+        started = r['start']['value']
+        data.append({
+            'name': name,
+            'epoch': r['epoch']['value'],
+            'started': fmt_date(datetime.datetime.strptime(started, "%Y-%m-%dT%H:%M:%S.%f")),
+            'ended': None,
+            'run': r['run']['value'],
+        })
+
+    print(tabulate(
+        data, showindex=True,
+        headers={"name": "name", "epoch": "epoch", "started": "started", "ended": "ended", "run": "run"}))

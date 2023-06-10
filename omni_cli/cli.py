@@ -10,6 +10,7 @@ from .datasets import dataset_list
 from .docker import docker_build, docker_shell
 from .graph import run_local_graph, destroy_local_graph
 from .sparql import query_generations, query_last_generation
+from .sparql import query_generations, query_orchestrator_by_name
 from .sync import download_bench_data
 from .workflow import run as workflow_run
 
@@ -226,3 +227,20 @@ def add_query_commands():
 
 add_query_commands()
 run.add_command(query)
+
+@click.group()
+def orchestrator():
+    """Query and update the KG for the orchestrator runs"""
+    pass
+
+def add_orchestrator_commands():
+    @click.command()
+    @click.argument('name')
+    def runs(name):
+        """Return the most recent runs for the given benchmark name"""
+        query_orchestrator_by_name(name)
+
+    orchestrator.add_command(runs)
+
+add_orchestrator_commands()
+run.add_command(orchestrator)
