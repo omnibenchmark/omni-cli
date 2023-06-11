@@ -19,7 +19,7 @@ def do_start_epoch(benchmark_name):
     write its own triples.
 
     This function first tries to retrieve the last known epoch for a given 
-    orcestrator run from our alternative Knowledge Graph; then it will add triples
+    orchestrator run from our alternative Knowledge Graph; then it will add triples
     for a new orchestrator run that starts now, and with an epoch field set to
     the next consecutive integer.
 

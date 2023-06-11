@@ -8,8 +8,8 @@ from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
 from .docker import docker_build, docker_shell
+from .epoch import do_start_epoch, do_stop_epoch
 from .graph import run_local_graph, destroy_local_graph
-from .orchestrator import do_start_epoch, do_stop_epoch
 from .sparql import query_generations, query_last_generation
 from .sparql import query_generations, query_orchestrator_by_name
 from .sync import download_bench_data
