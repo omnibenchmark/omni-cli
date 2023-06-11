@@ -136,6 +136,14 @@ def query_generations():
 parse_time_with_ms = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 parse_time_with_tz = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")
 
+def maybe(d, var):
+    _d = d.get(var)
+    print(_d)
+    if _d is None:
+        return None
+    return _d.get('value')
+
+
 def query_last_generation():
     # TODO: we could derive the last-gen as a nested query, instead
     # of issuing two different queries.
@@ -148,12 +156,12 @@ def query_last_generation():
     data = []
 
     for r in result["results"]["bindings"]:
-        date_str = r['modified']['value']
+        date_str = maybe(r, 'modified')
         data.append({
-            'file': r['source']['value'],
+            'file': maybe(r, 'source'),
             'last_modified': fmt_date(parse_time_with_tz),
-            'md5sum': r['checksum']['value'][:8],
-            'keywords': r['keywords']['value'],
+            'md5sum': maybe(r, 'checksum')[:8],
+            'keywords': maybe(r, 'keywords'),
         })
 
     print(tabulate(
@@ -167,40 +175,35 @@ def query_orchestrator_by_name(name):
     result = prepareAndSubmitQueryFromTemplate(epochForOrchestratorQuery, ctx)
 
     data = []
-
     for r in result["results"]["bindings"]:
-        started = r['start']['value']
+        started = maybe(r, 'start')
         if started is not None:
             started = fmt_date(parse_time_with_ms(started))
-        ended = r.get('end').get('value') if r.get('end') is not None else None
+        ended = maybe(r, 'end')
         if ended is not None:
             ended = fmt_date(parse_time_with_ms(ended))
         data.append({
             'name': name,
-            'epoch': r['epoch']['value'],
+            'epoch': maybe(r, 'epoch'),
             'started': started,
             'ended': ended,
-            'run': r['run']['value'],
+            'run': maybe(r, 'run')
         })
 
     print(tabulate(
         data, showindex=True,
         headers={"name": "name", "epoch": "epoch", "started": "started", "ended": "ended", "run": "run"}))
 
-
 def get_last_run_by_name(name):
     ctx = {'name': name}
     result = prepareAndSubmitQueryFromTemplate(lastEpochForOrchestratorQuery, ctx)
     data = []
     for r in result["results"]["bindings"]:
-        end = r.get('end') or None
-        if end is not None:
-            end = end['value']
         data.append({
-            'run': r['run']['value'],
-            'epoch': r['epoch']['value'],
-            'start': r['start']['value'],
-            'end': end
+            'run': maybe(r, 'run'),
+            'epoch': maybe(r, 'epoch'),
+            'start': maybe(r, 'start'),
+            'end': maybe(r, 'end'),
         })
     if len(data) != 1:
         return None
