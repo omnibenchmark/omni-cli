@@ -9,6 +9,7 @@ from .datasets import size as size_dataset
 from .datasets import dataset_list
 from .docker import docker_build, docker_shell
 from .graph import run_local_graph, destroy_local_graph
+from .orchestrator import do_start_epoch, do_stop_epoch
 from .sparql import query_generations, query_last_generation
 from .sparql import query_generations, query_orchestrator_by_name
 from .sync import download_bench_data
@@ -229,18 +230,42 @@ add_query_commands()
 run.add_command(query)
 
 @click.group()
-def orchestrator():
-    """Query and update the KG for the orchestrator runs"""
+def epoch():
+    """Query and manipulate Orchestrator Epochs in the Knowledge Graph of our choice.
+
+    An orchestrator epoch is defined by a time interval in which all the
+    methods for a given benchmark must be run. It's up to the benchmark maintainers
+    if these runs are scheduled by the orchestrator (closed world), or they
+    allow any method to be notified of the new epoch and submit its own results
+    for indexing (open world mode).
+    """
     pass
 
-def add_orchestrator_commands():
+def add_epoch_commands():
     @click.command()
     @click.argument('name')
-    def runs(name):
+    def ls(name):
         """Return the most recent runs for the given benchmark name"""
+        click.echo("Last 10 runs by chronological order")
         query_orchestrator_by_name(name)
 
-    orchestrator.add_command(runs)
+    epoch.add_command(ls)
 
-add_orchestrator_commands()
-run.add_command(orchestrator)
+    @click.command()
+    @click.argument('name')
+    def start(name):
+        """Start a new epoch for the given benchmark name"""
+        do_start_epoch(name)
+
+    epoch.add_command(start)
+
+    @click.command()
+    @click.argument('name')
+    def stop(name):
+        """Stop the current epoch for the given benchmark name"""
+        do_stop_epoch(name)
+
+    epoch.add_command(stop)
+
+add_epoch_commands()
+run.add_command(epoch)

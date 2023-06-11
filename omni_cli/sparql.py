@@ -7,7 +7,11 @@ from tabulate import tabulate
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 
+from .model import OrchestratorRun
+
+# TODO read endpoint from config file
 LOCAL_ENDPOINT = "http://localhost:7878/query"
+
 
 genListQuery = """
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -26,6 +30,7 @@ LIMIT 100
 """
 
 # TODO: filter by namespace
+# TODO: pass the local endpoint
 
 lastGenQuery = """
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -69,7 +74,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX omni: <http://omnibenchmark.org/ns#>
 
-SELECT ?run ?name ?epoch ?start ?end WHERE {
+SELECT ?run ?epoch ?start ?end WHERE {
   ?run omni:hasName "$name" .
   ?run omni:hasEpoch ?epoch.
   ?run prov:startedAtTime ?start.
@@ -79,11 +84,21 @@ ORDER BY DESC(?start)
 LIMIT 10
 """
 
+lastEpochForOrchestratorQuery = """
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX omni: <http://omnibenchmark.org/ns#>
 
-# TODO: checksum and atLocation do not return literal in rdflib query result
-
-#?files prov:atLocation ?loc .
-#?entity prov:atLocation ?entityLoc .
+SELECT ?run ?epoch ?start ?end WHERE {
+  ?run omni:hasName "$name" .
+  ?run omni:hasEpoch ?epoch.
+  ?run prov:startedAtTime ?start.
+  OPTIONAL {?run prov:endedAtTime ?end.}
+} 
+ORDER BY DESC(?start)
+LIMIT 1
+"""
 
 def fmt_date(ts):
     return ts.strftime("%a, %d %b %Y at %H:%M:%S")
@@ -118,6 +133,9 @@ def query_generations():
 # TODO: pass generation hash (activity/generation)
 # TODO: pass keywords to limit the query
 
+parse_time_with_ms = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
+parse_time_with_tz = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")
+
 def query_last_generation():
     # TODO: we could derive the last-gen as a nested query, instead
     # of issuing two different queries.
@@ -133,7 +151,7 @@ def query_last_generation():
         date_str = r['modified']['value']
         data.append({
             'file': r['source']['value'],
-            'last_modified': fmt_date(datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S%z")),
+            'last_modified': fmt_date(parse_time_with_tz),
             'md5sum': r['checksum']['value'][:8],
             'keywords': r['keywords']['value'],
         })
@@ -152,14 +170,47 @@ def query_orchestrator_by_name(name):
 
     for r in result["results"]["bindings"]:
         started = r['start']['value']
+        if started is not None:
+            started = fmt_date(parse_time_with_ms(started))
+        ended = r.get('end').get('value') if r.get('end') is not None else None
+        if ended is not None:
+            ended = fmt_date(parse_time_with_ms(ended))
         data.append({
             'name': name,
             'epoch': r['epoch']['value'],
-            'started': fmt_date(datetime.datetime.strptime(started, "%Y-%m-%dT%H:%M:%S.%f")),
-            'ended': None,
+            'started': started,
+            'ended': ended,
             'run': r['run']['value'],
         })
 
     print(tabulate(
         data, showindex=True,
         headers={"name": "name", "epoch": "epoch", "started": "started", "ended": "ended", "run": "run"}))
+
+
+def get_last_run_by_name(name):
+    ctx = {'name': name}
+    result = prepareAndSubmitQueryFromTemplate(lastEpochForOrchestratorQuery, ctx)
+    data = []
+    for r in result["results"]["bindings"]:
+        end = r.get('end') or None
+        if end is not None:
+            end = end['value']
+        data.append({
+            'run': r['run']['value'],
+            'epoch': r['epoch']['value'],
+            'start': r['start']['value'],
+            'end': end
+        })
+    if len(data) != 1:
+        return None
+    d = data[0]
+    start_ts = parse_time_with_ms(d.get('start'))
+    ended_ts = parse_time_with_ms(d.get('end')) if d.get('end') is not None else None
+    run = OrchestratorRun(
+            name=name,
+            run=d.get('run'),
+            epoch=int(d.get('epoch')),
+            started=start_ts,
+            ended=ended_ts)
+    return run
