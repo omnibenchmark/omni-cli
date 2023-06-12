@@ -136,14 +136,6 @@ def query_generations():
 parse_time_with_ms = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 parse_time_with_tz = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")
 
-def maybe(d, var):
-    _d = d.get(var)
-    print(_d)
-    if _d is None:
-        return None
-    return _d.get('value')
-
-
 def query_last_generation():
     # TODO: we could derive the last-gen as a nested query, instead
     # of issuing two different queries.
@@ -159,7 +151,7 @@ def query_last_generation():
         date_str = maybe(r, 'modified')
         data.append({
             'file': maybe(r, 'source'),
-            'last_modified': fmt_date(parse_time_with_tz),
+            'last_modified': fmt_date(parse_time_with_tz(date_str)),
             'md5sum': maybe(r, 'checksum')[:8],
             'keywords': maybe(r, 'keywords'),
         })
@@ -170,7 +162,7 @@ def query_last_generation():
 
 
 
-def query_orchestrator_by_name(name):
+def query_epochs_by_name(name):
     ctx = {'name': name}
     result = prepareAndSubmitQueryFromTemplate(epochForOrchestratorQuery, ctx)
 
@@ -217,3 +209,11 @@ def get_last_run_by_name(name):
             started=start_ts,
             ended=ended_ts)
     return run
+
+def maybe(d, var):
+    _d = d.get(var)
+    if _d is None:
+        return None
+    return _d.get('value')
+
+

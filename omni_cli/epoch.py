@@ -11,9 +11,9 @@ OMNI_RUN = Namespace("http://omnibenchmark.org/run/")
 PROV = Namespace("http://www.w3.org/ns/prov#")
 LOCAL_ENDPOINT = "http://localhost:7878/update"
 
-def do_start_epoch(benchmark_name):
+def do_begin_epoch(benchmark_name):
     """
-    Start a new epoch for this benchmark. This should be called by the
+    Begin (open) a new epoch for this benchmark. This should be called by the
     orchestrator before running a controlled batch, or alternatively at any
     fixed interval (i.e., daily) so that any method can take the reference to
     write its own triples.
@@ -32,9 +32,9 @@ def do_start_epoch(benchmark_name):
         last = last_run.epoch
     bump_benchmark_epoch(name=benchmark_name, last_epoch=last)
 
-def do_stop_epoch(benchmark_name):
+def do_end_epoch(benchmark_name):
     """
-    Stop an existing epoch for this benchmark; i.e., writes the ended timestamp
+    End (close) an existing epoch for this benchmark; i.e., writes the ended timestamp
     as the closing interval, setting it to the current date and time.
 
     Attempting to overwrite the closing interval of an OrchestratorRun that has already
@@ -46,6 +46,25 @@ def do_stop_epoch(benchmark_name):
         return
     close_benchmark_epoch(last_run)
     print("ok")
+
+def get_current_epoch(benchmark_name):
+    """
+    Get the current epoch for this benchmark; i.e., fetches the last epoch
+    with a starting timestamp but not still ended (closed).
+
+    This call can fail if no open epoch is found; orchestrator is responsible
+    for starting a new epoch.
+    """
+    last_run = get_last_run_by_name(benchmark_name)
+    if last_run is None:
+        print("NA")
+        return
+    if last_run.ended != None:
+        print("error: epoch closed")
+        # TODO signal error in an structured way
+        return
+    print(last_run.epoch)
+
 
 def newGraphWithOmniNS():
     g = Graph()

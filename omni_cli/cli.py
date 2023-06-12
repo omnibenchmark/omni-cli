@@ -8,10 +8,10 @@ from .datasets import download as download_dataset
 from .datasets import size as size_dataset
 from .datasets import dataset_list
 from .docker import docker_build, docker_shell
-from .epoch import do_start_epoch, do_stop_epoch
+from .epoch import do_begin_epoch, do_end_epoch, get_current_epoch
 from .graph import run_local_graph, destroy_local_graph
 from .sparql import query_generations, query_last_generation
-from .sparql import query_generations, query_orchestrator_by_name
+from .sparql import query_epochs_by_name
 from .sync import download_bench_data
 from .workflow import run as workflow_run
 
@@ -247,25 +247,34 @@ def add_epoch_commands():
     def ls(name):
         """Return the most recent runs for the given benchmark name"""
         click.echo("Last 10 runs by chronological order")
-        query_orchestrator_by_name(name)
+        query_epochs_by_name(name)
 
     epoch.add_command(ls)
 
     @click.command()
     @click.argument('name')
-    def start(name):
-        """Start a new epoch for the given benchmark name"""
-        do_start_epoch(name)
+    def begin(name):
+        """Begin a new epoch for the given benchmark name"""
+        do_begin_epoch(name)
 
-    epoch.add_command(start)
+    epoch.add_command(begin)
 
     @click.command()
     @click.argument('name')
-    def stop(name):
-        """Stop the current epoch for the given benchmark name"""
-        do_stop_epoch(name)
+    def end(name):
+        """End the current epoch for the given benchmark name"""
+        do_end_epoch(name)
 
-    epoch.add_command(stop)
+    epoch.add_command(end)
+
+    @click.command()
+    @click.argument('name')
+    def current(name):
+        """Get the current epoch for the given benchmark name. It will fail if no
+        currently open interval is defined for the given benchmark."""
+        get_current_epoch(name)
+
+    epoch.add_command(current)
 
 add_epoch_commands()
 run.add_command(epoch)
