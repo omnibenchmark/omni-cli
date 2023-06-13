@@ -10,6 +10,7 @@ from .datasets import dataset_list
 from .docker import docker_build, docker_shell
 from .epoch import do_begin_epoch, do_end_epoch, get_current_epoch
 from .graph import run_local_graph, destroy_local_graph
+from .orchestrator import describe_benchmark
 from .sparql import query_generations, query_last_generation
 from .sparql import query_epochs_by_name
 from .sync import download_bench_data
@@ -49,20 +50,31 @@ def bench():
     """Inspect benchmarks"""
     pass
 
-@click.command()
-def ls():
-    """List all benchmarks"""
-    for bench in benchmark_list():
-        click.echo(f"{bench}")
+def add_bench_commands():
+    @click.command()
+    def ls():
+        """List all benchmarks"""
+        for bench in benchmark_list():
+            click.echo(f"{bench}")
+    bench.add_command(ls)
 
-@click.command()
-@click.argument('bench_id')
-def stages(bench_id):
-    for stage in stage_list(bench_id):
-        click.echo(f"{bench_id}:{stage}")
+    @click.command()
+    @click.argument('bench_id')
+    def stages(bench_id):
+        for stage in stage_list(bench_id):
+            click.echo(f"{bench_id}:{stage}")
+    bench.add_command(stages)
 
-bench.add_command(ls)
-bench.add_command(stages)
+    @click.command()
+    @click.argument('path')
+    def describe(path):
+        """Describe a benchmark, local or remote"""
+        click.echo(f"Describing plan in {path}")
+        describe_benchmark(path)
+
+    bench.add_command(describe)
+
+add_bench_commands()
 run.add_command(bench)
 
 @click.group()
