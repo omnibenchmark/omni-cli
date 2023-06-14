@@ -126,17 +126,35 @@ def get_graph_output_dir():
     return os.environ.get(GRAPH_PATH_ENV, None)
 
 def load_graph():
-    _serialize_graph()
-    _load_in_local_graph_store()
+    _upload_to_local_graph()
 
-def _serialize_graph():
+def _upload_to_local_graph():
     from rdflib import Graph
     g = Graph()
     g.parse(f"file://{GRAPH_HOST_PATH}/{GRAPH_JSON}", format="json-ld")
-    g.serialize(f"file://{GRAPH_HOST_PATH}/graph.ttl")
+
     graph_len = len(list(g.triples((None, None, None))))
     print("> Got", graph_len, "triples")
 
-def _load_in_local_graph_store():
-    path = get_graph_dir()
-    load_triples(f"{GRAPH_HOST_PATH}/graph.ttl")
+    insert(g)
+
+
+# TODO: refactor with methods in epoch (dedup)
+
+from SPARQLWrapper import SPARQLWrapper, JSON, POST
+
+def insert(g):
+    # TODO: batch, string seems to large...
+    updatequery = "\n".join([f"PREFIX {prefix}: {ns.n3()}" for prefix, ns in g.namespaces()])
+    updatequery += f"\nINSERT DATA {{"
+    updatequery += " .\n".join([f"\t\t{s.n3()} {p.n3()} {o.n3()}" for (s, p, o) in g.triples((None, None, None))])
+    updatequery += f" . \n\n}}\n"
+    insert_triples(updatequery)
+
+LOCAL_ENDPOINT = "http://localhost:7878/update"
+
+def insert_triples(queryString):
+    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
+    sparql.setQuery(queryString)
+    sparql.setMethod(POST)
+    ret = sparql.queryAndConvert()

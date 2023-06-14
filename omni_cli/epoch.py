@@ -72,12 +72,6 @@ def newGraphWithOmniNS():
     g.bind("omni", OMNI)
     return g
 
-def insert_triples(queryString):
-    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
-    sparql.setQuery(queryString)
-    sparql.setMethod(POST)
-    ret = sparql.queryAndConvert()
-
 def bump_benchmark_epoch(name=None, last_epoch=None):
     if name is None or last_epoch is None:
         raise ValueError("Need non null parameters for name and last_epoch")
@@ -138,3 +132,10 @@ def insert(g):
     updatequery += " .\n".join([f"\t\t{s.n3()} {p.n3()} {o.n3()}" for (s, p, o) in g.triples((None, None, None))])
     updatequery += f" . \n\n}}\n"
     insert_triples(updatequery)
+
+def insert_triples(queryString):
+    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
+    sparql.setQuery(queryString)
+    sparql.setMethod(POST)
+    ret = sparql.queryAndConvert()
+
