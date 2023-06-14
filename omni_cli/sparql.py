@@ -100,6 +100,22 @@ ORDER BY DESC(?start)
 LIMIT 1
 """
 
+lastActivityForProject = """
+PREFIX schema: <http://schema.org/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+SELECT ?act WHERE {
+  ?plan schema:name "$project".
+  ?assoc prov:hadPlan ?plan.
+  ?act prov:qualifiedAssociation ?assoc.
+  ?act prov:endedAtTime ?end.
+
+}
+ORDER BY DESC(?end)
+LIMIT 1
+
+"""
+
 def fmt_date(ts):
     return ts.strftime("%a, %d %b %Y at %H:%M:%S")
 
@@ -114,9 +130,9 @@ def prepareAndSubmitQueryFromTemplate(template, ctx):
     sparql.setQuery(query)
     try:
         result = sparql.queryAndConvert()
+        return result
     except Exception as e:
         print("error:", e)
-    return result
 
 def query_generations():
     result = doQuery(genListQuery)
@@ -161,7 +177,6 @@ def query_last_generation():
         headers={"file": "file", "last_modified": "modified", "md5sum": "md5", "keywords": "keywords"}))
 
 
-
 def query_epochs_by_name(name):
     ctx = {'name': name}
     result = prepareAndSubmitQueryFromTemplate(epochForOrchestratorQuery, ctx)
@@ -189,6 +204,8 @@ def query_epochs_by_name(name):
 def get_last_run_by_name(name):
     ctx = {'name': name}
     result = prepareAndSubmitQueryFromTemplate(lastEpochForOrchestratorQuery, ctx)
+    if result is None:
+        return
     data = []
     for r in result["results"]["bindings"]:
         data.append({
@@ -210,10 +227,21 @@ def get_last_run_by_name(name):
             ended=ended_ts)
     return run
 
+def query_last_activity_by_project(name):
+    ctx = {'project': name}
+    result = prepareAndSubmitQueryFromTemplate(lastActivityForProject, ctx)
+    if result is None:
+        return
+    data = []
+    for r in result["results"]["bindings"]:
+        data.append(maybe(r, 'act'))
+    if len(data) != 1:
+        print(data)
+        raise ValueError("Expected a single result")
+    return data[0]
+
 def maybe(d, var):
     _d = d.get(var)
     if _d is None:
         return None
     return _d.get('value')
-
-

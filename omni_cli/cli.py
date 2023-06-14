@@ -9,8 +9,9 @@ from .datasets import size as size_dataset
 from .datasets import dataset_list
 from .docker import docker_build, docker_shell
 from .epoch import do_begin_epoch, do_end_epoch, get_current_epoch
+from .epoch import annotate_epoch
 from .graph import run_local_graph, destroy_local_graph
-from .orchestrator import describe_benchmark
+from .orchestrator import describe_benchmark, clone_benchmark
 from .sparql import query_generations, query_last_generation
 from .sparql import query_epochs_by_name
 from .sync import download_bench_data
@@ -22,10 +23,6 @@ ENV_SPARQL = 'SPARQL_ENDPOINT'
 def run():
     """Interact with omnibenchmark datasets and workflows."""
     pass
-
-@click.command()
-def describe():
-    click.echo(f"Attempting to describe entity")
 
 @click.command()
 def init():
@@ -56,6 +53,7 @@ def add_bench_commands():
         """List all benchmarks"""
         for bench in benchmark_list():
             click.echo(f"{bench}")
+
     bench.add_command(ls)
 
     @click.command()
@@ -63,6 +61,7 @@ def add_bench_commands():
     def stages(bench_id):
         for stage in stage_list(bench_id):
             click.echo(f"{bench_id}:{stage}")
+
     bench.add_command(stages)
 
     @click.command()
@@ -73,6 +72,20 @@ def add_bench_commands():
         describe_benchmark(path)
 
     bench.add_command(describe)
+
+    @click.command()
+    @click.argument('path')
+    @click.option('--dry-run', type=click.BOOL, default=False, help='Show actions but do not run the code')
+    @click.option('--stage', type=click.STRING, default=None, help='Clone only repos for this stage')
+    def clone(path, dry_run, stage):
+        """Clone locally projects for a benchmark"""
+        msg = "Cloning local projects..."
+        if dry_run:
+            msg += "(dry run)"
+        click.echo(msg)
+        clone_benchmark(path, dryrun=dry_run, stage=stage)
+
+    bench.add_command(clone)
 
 add_bench_commands()
 run.add_command(bench)
@@ -140,7 +153,15 @@ def add_workflow_commands():
         result = workflow_run(docker_image=image, sparql=sparql, dirty=dirty)
         click.echo(result)
 
+    @click.command()
+    def annotate_run():
+        """Manually insert triples that annotate the last workflow run with the existing orchestrator epoch"""
+        click.echo(f"Annotating workflow run with current epoch")
+        result = annotate_epoch()
+        click.echo(result)
+
     workflow.add_command(run)
+    workflow.add_command(annotate_run)
 
 add_workflow_commands()
 run.add_command(workflow)

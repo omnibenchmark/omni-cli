@@ -4,7 +4,8 @@ from rdflib import URIRef, BNode, Literal
 
 from SPARQLWrapper import SPARQLWrapper, JSON, POST
 
-from .sparql import get_last_run_by_name
+from .project import project_info
+from .sparql import get_last_run_by_name, query_last_activity_by_project
 
 OMNI = Namespace("http://omnibenchmark.org/ns#")
 OMNI_RUN = Namespace("http://omnibenchmark.org/run/")
@@ -101,6 +102,35 @@ def close_benchmark_epoch(last_run=None):
     current = URIRef(last_run.run)
     g.add((current, PROV.endedAtTime, Literal(now)))
     insert(g)
+
+def annotate_epoch():
+    # TODO - insert was Started By
+    project = project_info()
+    last_run = get_last_run_by_name(project.benchmark)
+    if last_run.ended is not None:
+        print("Cannot annotate workflow, epoch is closed")
+        return
+    activity = query_last_activity_by_project(project.name)
+    print(f"benchmark: {project.benchmark}")
+    print(f"[{project.name}] last activity: {activity}")
+    print(f"run: {last_run.run}")
+    print(f"epoch: {last_run.epoch}")
+    add_annotation_triples(activity, last_run.run)
+
+def add_annotation_triples(activity, run):
+    """
+    Add triples to the Knowledge Graph that annotate a particular activity.
+    These triples will link a given benchmark run (with a given epoch) with any 
+    activities for any of the projects that constitute a benchmark run.
+
+    prov:wasStartedBy is an specialization of prov:wasInfluencedBy.
+    """
+    # TODO: should review if domain and range correctly apply, and derive proper
+    # types if we've violating the type constrains.
+    g = newGraphWithOmniNS()
+    g.add((URIRef(activity), PROV.wasStartedBy, URIRef(run)))
+    insert(g)
+
 
 def insert(g):
     updatequery = "\n".join([f"PREFIX {prefix}: {ns.n3()}" for prefix, ns in g.namespaces()])
