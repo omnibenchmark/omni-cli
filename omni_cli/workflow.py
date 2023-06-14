@@ -9,10 +9,9 @@ import requests
 
 from .config import get_graph_dir, is_graph_enabled
 from .docker import is_docker, get_omni_image
-from .graph import load_triples
 
+#from .graph import load_triples
 from git import Repo
-
 from omnibenchmark.utils.build_omni_object import get_omni_object_from_yaml
 from omnibenchmark.renku_commands.general import renku_save
 from renku.command.graph import export_graph_command
@@ -144,12 +143,16 @@ def _upload_to_local_graph():
 from SPARQLWrapper import SPARQLWrapper, JSON, POST
 
 def insert(g):
-    # TODO: batch, string seems to large...
-    updatequery = "\n".join([f"PREFIX {prefix}: {ns.n3()}" for prefix, ns in g.namespaces()])
-    updatequery += f"\nINSERT DATA {{"
-    updatequery += " .\n".join([f"\t\t{s.n3()} {p.n3()} {o.n3()}" for (s, p, o) in g.triples((None, None, None))])
-    updatequery += f" . \n\n}}\n"
-    insert_triples(updatequery)
+    # TODO: can use itertools to lazy evaluate the generator
+    triples = list(g.triples((None, None, None)))
+
+    while len(triples) > 0:
+        batch, triples = triples[:100], triples[100:]
+        updatequery = "\n".join([f"PREFIX {prefix}: {ns.n3()}" for prefix, ns in g.namespaces()])
+        updatequery += f"\nINSERT DATA {{"
+        updatequery += " .\n".join([f"\t\t{s.n3()} {p.n3()} {o.n3()}" for (s, p, o) in batch])
+        updatequery += f" . \n\n}}\n"
+        insert_triples(updatequery)
 
 LOCAL_ENDPOINT = "http://localhost:7878/update"
 

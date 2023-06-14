@@ -18,6 +18,8 @@ def run_local_graph():
         binary, "--location", graph_path, "serve"])
     return p.stdout
 
+# TODO: deprecate - we're currently uploading triples via
+# the SPARQL endpoint.
 def load_triples(triples):
     print("> load into local graph server")
     # TODO should sanitize triple path (to be under project path)
