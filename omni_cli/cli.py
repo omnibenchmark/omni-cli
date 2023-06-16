@@ -13,7 +13,7 @@ from .epoch import annotate_epoch
 from .graph import run_local_graph, destroy_local_graph
 from .orchestrator import describe_benchmark, clone_benchmark
 from .sparql import query_generations, query_last_generation
-from .sparql import query_epochs_by_name
+from .sparql import query_epochs_by_name, query_files_for_epoch
 from .sync import download_bench_data
 from .workflow import run as workflow_run
 
@@ -258,6 +258,14 @@ def add_query_commands():
         query_last_generation()
 
     query.add_command(last_generation)
+
+    @click.command()
+    @click.argument('name')
+    def files(name):
+        """Query local graph for all the files for the last epoch"""
+        query_files_for_epoch(name)
+
+    query.add_command(files)
 
 add_query_commands()
 run.add_command(query)
