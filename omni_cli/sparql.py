@@ -414,7 +414,7 @@ def query_provenance_for_last_epoch(name, draw=False, target=None):
             'ended': maybe(r, 'ended'),
             'input': maybe(r, 'inputfile').split('data/')[1],
             'output': maybe(r, 'outputfile').split('data/')[1],
-            'activity': maybe(r, 'activity')
+            'activity': maybe(r, 'act').split('/')[-1][:8]
         })
     print(tabulate(
         data, showindex=True,
