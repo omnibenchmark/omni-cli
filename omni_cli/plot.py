@@ -3,7 +3,7 @@
 def plot_graph(graph):
     import networkx as nx
     import matplotlib.pyplot as plt
-    nx.draw_networkx(G)
+    nx.draw_networkx(graph)
     plt.show()
 
 def plot_connected_component(graph, target_node):

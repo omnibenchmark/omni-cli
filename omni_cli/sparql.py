@@ -174,6 +174,11 @@ ORDER BY ASC(?ended)
 
 # Construct the DAG for input/output files in a Plan, for all the activities
 # coming from the last epoch for a given benchmark.
+# This query is parametrized for three variables:
+#
+# $annotations: the annotations SPARQL endpoint
+# $graph: the main knowledge graph SPARQL endpoint
+# $benchmark: the benchmark name
 provenanceForLastEpoch = """
 PREFIX schema: <http://schema.org/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -183,18 +188,32 @@ PREFIX renku: <https://swissdatasciencecenter.github.io/renku-ontology#>
 PREFIX omni: <http://omnibenchmark.org/ns#>
 
 SELECT DISTINCT ?act ?kw ?ended ?inputfile ?outputfile WHERE {
+  # annotations query: select all the activites for the last generation
+  # TODO: parametrize by generation too (use filter)
+  SERVICE <$annotations> {
+    {
+      SELECT ?run WHERE {
+        ?run omni:hasName "$benchmark" .
+        ?run omni:hasEpoch ?epoch .
+        ?run prov:startedAtTime ?start .
+      }
+      ORDER BY DESC(?start)
+      LIMIT 1
+   }
+   {
+      SELECT ?act WHERE {
+        ?act prov:wasStartedBy ?run .
+      }
+    }
+  }
 
   SERVICE <$graph> {
       # get the generation for the activity, and descend into
       # the keywords to identify the project that generated it
-
       ?gen prov:activity ?act .
-
-      # we ascend to the dataset-files entity just to retrieve the keywords
-
       ?entity prov:qualifiedGeneration ?gen .
-      ?dataset schema:hasPart ?files .
       ?files prov:entity ?entity .
+      ?dataset schema:hasPart ?files .
       ?dataset schema:keywords ?kw .
 
       ?act a prov:Activity .
@@ -208,33 +227,12 @@ SELECT DISTINCT ?act ?kw ?ended ?inputfile ?outputfile WHERE {
 
       ?plan renku:hasOutputs ?output .
       ?output schema:defaultValue ?outputfile .
-  }
-
-  # nested query: select all the activites for the last generation
-  # TODO: parametrize by generation too (use filter)
-  {
-    SELECT DISTINCT ?act ?ended WHERE {
-    SERVICE <$annotations> {
-        SELECT ?run ?epoch  WHERE {
-          ?run omni:hasName "$benchmark" .
-          ?run omni:hasEpoch ?epoch .
-          ?run prov:startedAtTime ?start .
-        }
-        ORDER BY DESC(?start)
-        LIMIT 1
-    }
-    SERVICE <$graph> {
       # get the ending time to sort the entities chronologically
       ?act prov:endedAtTime ?ended .
-      # get the activities started by the run from the last epoch...
-      ?act prov:wasStartedBy ?run . }
-    }
   }
-
 }
 ORDER BY ASC(?ended)
 """
-
 
 def fmt_date(ts):
     return ts.strftime("%a, %d %b %Y at %H:%M:%S")
