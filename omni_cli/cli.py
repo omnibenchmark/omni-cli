@@ -14,6 +14,7 @@ from .graph import run_local_graph, destroy_local_graph
 from .orchestrator import describe_benchmark, clone_benchmark
 from .sparql import query_generations, query_last_generation
 from .sparql import query_epochs_by_name, query_files_for_epoch
+from .sparql import query_provenance_for_last_epoch
 from .sync import download_bench_data
 from .workflow import run as workflow_run
 
@@ -266,6 +267,16 @@ def add_query_commands():
         query_files_for_epoch(name)
 
     query.add_command(files)
+
+    @click.command()
+    @click.argument('name')
+    @click.option('--draw', type=click.BOOL, default=False, help='Draw provenance DAG')
+    @click.option('--target', type=click.STRING, default=None, help='Filter by file')
+    def provenance(name, draw, target):
+        """Query file provenance for a given benchmark"""
+        query_provenance_for_last_epoch(name, draw=draw, target=target)
+
+    query.add_command(provenance)
 
 add_query_commands()
 run.add_command(query)

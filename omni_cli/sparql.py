@@ -173,6 +173,64 @@ SELECT DISTINCT ?location ?checksum ?keywords ?ended WHERE {
 ORDER BY ASC(?ended)
 """
 
+# Construct the DAG for input/output files in a Plan, for all the activities
+# coming from the last epoch for a given benchmark.
+provenanceForLastEpoch = """
+PREFIX schema: <http://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX renku: <https://swissdatasciencecenter.github.io/renku-ontology#>
+PREFIX omni: <http://omnibenchmark.org/ns#>
+
+SELECT DISTINCT ?act ?kw ?ended ?inputfile ?outputfile WHERE {
+
+  # get the generation for the activity, and descend into
+  # the keywords to identify the project that generated it
+
+  ?gen prov:activity ?act .
+
+  # we ascend to the dataset-files entity just to retrieve the keywords
+  ?entity prov:qualifiedGeneration ?gen .
+  ?dataset schema:hasPart ?files .
+  ?files prov:entity ?entity .
+
+  ?dataset schema:keywords ?kw .
+
+  # nested query: select all the activites for the last generation
+  # TODO: parametrize by generation too (use filter)
+  {
+    SELECT DISTINCT ?act ?ended WHERE {
+    {
+    SELECT ?run ?epoch  WHERE {
+      ?run omni:hasName "$benchmark" .
+      ?run omni:hasEpoch ?epoch .
+      ?run prov:startedAtTime ?start .
+    }
+    ORDER BY DESC(?start)
+    LIMIT 1
+    }
+  # get the ending time to sort the entities chronologically
+  ?act prov:endedAtTime ?ended .
+  # get the activities started by the run from the last epoch...
+  ?act prov:wasStartedBy ?run . }
+  }
+
+  ?act a prov:Activity .
+  ?act prov:qualifiedAssociation ?asoc.
+  ?asoc prov:hadPlan ?plan .
+  ?plan renku:hasInputs ?input .
+  ?input schema:defaultValue ?inputfile .
+
+  # handy heuristic: we do not care about src/*
+  FILTER (strstarts(str(?inputfile), 'data/')) .
+
+  ?plan renku:hasOutputs ?output .
+  ?output schema:defaultValue ?outputfile .
+}
+ORDER BY ASC(?ended)
+"""
+
 
 def fmt_date(ts):
     return ts.strftime("%a, %d %b %Y at %H:%M:%S")
@@ -314,6 +372,61 @@ def query_files_for_epoch(name):
     print(tabulate(
         data, showindex=True,
         headers={"location": "location", "checksum": "checksum", "keywords": "keywords", "ended": "ended"}))
+
+
+def query_provenance_for_last_epoch(name, draw=False, target=None):
+    ctx = {'benchmark': name}
+    result = queryFromTemplate(provenanceForLastEpoch, ctx)
+    if result is None:
+        return
+    data = []
+    for r in result["results"]["bindings"]:
+        data.append({
+            'keywords': maybe(r, 'kw'),
+            'ended': maybe(r, 'ended'),
+            'input': maybe(r, 'inputfile').split('data/')[1],
+            'output': maybe(r, 'outputfile').split('data/')[1],
+            'activity': maybe(r, 'activity')
+        })
+    print(tabulate(
+        data, showindex=True,
+        headers={"keywords": "keywords", "input": "input", "output": "output", "activity": "activity"}))
+
+    if draw:
+        try:
+            import networkx as nx
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("please install networkx and matplotlib")
+            return
+
+        edges = [(row['input'], row['output']) for row in data]
+        G = nx.DiGraph()
+        G.add_edges_from(edges)
+
+        if target is None:
+            nx.draw_networkx(G)
+            plt.show()
+        else:
+            plot_connected_component(G, target)
+
+
+def plot_connected_component(graph, target_node):
+    import networkx as nx
+    import matplotlib.pyplot as plt
+    # Get the connected component containing the target node
+    connected_component = nx.weakly_connected_components(graph)
+    for component in connected_component:
+        if target_node in component:
+            subgraph = graph.subgraph(component)
+            break
+    
+    # Plot the subgraph
+    pos = nx.spring_layout(subgraph)
+    nx.draw_networkx(subgraph, pos, with_labels=True, node_color='lightblue', node_size=500, edge_color='gray')
+    plt.title(f"Connected Component for Node: {target_node}")
+    plt.show()
+
 
 
 def maybe(d, var):
