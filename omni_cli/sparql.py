@@ -30,7 +30,6 @@ LIMIT 100
 """
 
 # TODO: filter by namespace
-# TODO: pass the local endpoint
 
 lastGenQuery = """
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -168,103 +167,6 @@ SELECT DISTINCT ?location ?checksum ?keywords ?ended WHERE {
     ?files prov:entity ?entity .
     ?dataset schema:hasPart ?files .
     ?dataset schema:keywords ?keywords .
-  }
-}
-ORDER BY ASC(?ended)
-"""
-
-old2 = """
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX omni: <http://omnibenchmark.org/ns#>
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX renku: <https://swissdatasciencecenter.github.io/renku-ontology#>
-PREFIX schema: <http://schema.org/>
-
-SELECT DISTINCT ?location ?checksum ?keywords ?ended WHERE {
-  # annotations query: select all generations for all the runs belonging
-  # to the last epoch
-  SERVICE <$annotations> {
-    SELECT ?act ?run ?epoch  WHERE {
-      ?run omni:hasName "$project" .
-      ?run omni:hasEpoch ?epoch .
-      ?run prov:startedAtTime ?start .
-      ?act prov:wasStartedBy ?run .
-      }
-      ORDER BY DESC(?start)
-      LIMIT 1
-  }
-  # knowledge graph query: select files for the generation associated to
-  # the activities returned above
-  SERVICE <$graph> {
-    # get the ending time to sort the entities chronologically
-    ?act prov:endedAtTime ?ended .
-    ?gen prov:activity ?act .
-    ?entity prov:qualifiedGeneration ?gen .
-    # what is the (relative) location of the entity?
-    ?entity prov:atLocation ?location .
-    # get md5 checksum of the file obtained by dereferencing the entity
-    ?entity renku:checksum ?checksum .
-    # we ascend to the dataset-files entity just to retrieve the keywords
-    ?files prov:entity ?entity .
-    ?dataset schema:hasPart ?files .
-    ?dataset schema:keywords ?keywords .
-  }
-}
-ORDER BY ASC(?ended)
-"""
-
-
-
-old = """
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX omni: <http://omnibenchmark.org/ns#>
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX renku: <https://swissdatasciencecenter.github.io/renku-ontology#>
-PREFIX schema: <http://schema.org/>
-
-SELECT DISTINCT ?location ?checksum ?keywords ?ended WHERE {
-{
-  # nested query: select all generations for all the runs belonging
-  # to the last epoch
-  SELECT DISTINCT ?gen ?ended WHERE {
-      SERVICE <$annotations> {
-          SELECT ?run ?epoch  WHERE {
-            ?run omni:hasName "$project" .
-            ?run omni:hasEpoch ?epoch .
-            ?run prov:startedAtTime ?start .
-          }
-          ORDER BY DESC(?start)
-          LIMIT 1
-      }
-      SERVICE <$graph> {
-          # get the ending time to sort the entities chronologically
-          ?act prov:endedAtTime ?ended .
-          # get the activities started by the run from the last epoch...
-          ?act prov:wasStartedBy ?run .
-          # ... and the generation associated with each of those activities
-          ?gen prov:activity ?act .
-      }
-  }
-
-  SERVICE <$graph> {
-      # alternatively, we can pass filter by a given generation:
-      # FILTER (?gen = <https://renkulab.io/activities/77f9502765a14421b13c7a5d482bbbbe/generations/5b99101163fe48b3b353d9b83fe72c27>)
-
-      # which entities were produced by the qualified generation?
-      ?entity prov:qualifiedGeneration ?gen .
-
-      # what is the (relative) location of the entity?
-      ?entity prov:atLocation ?location .
-
-      # get md5 checksum of the file obtained by dereferencing the entity
-      ?entity renku:checksum ?checksum .
-
-      # we ascend to the dataset-files entity just to retrieve the keywords
-      ?files prov:entity ?entity .
-      ?dataset schema:hasPart ?files .
-      ?dataset schema:keywords ?keywords .
   }
 }
 ORDER BY ASC(?ended)
