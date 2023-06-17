@@ -273,6 +273,7 @@ def query_generations():
 
 parse_time_with_ms = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 parse_time_with_tz = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")
+parse_time = lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
 
 # TODO: we could derive the last-gen as a nested query, instead
 # of issuing two different queries.
@@ -408,10 +409,11 @@ def query_provenance_for_last_epoch(name, draw=False, target=None):
     if result is None:
         return
     data = []
+    now = datetime.datetime.now()
     for r in result["results"]["bindings"]:
         data.append({
             'keywords': maybe(r, 'kw'),
-            'ended': maybe(r, 'ended'),
+            'ended': humanize.naturaldelta(now - parse_time(maybe(r, 'ended')[:-1])) + " ago",
             'input': maybe(r, 'inputfile').split('data/')[1],
             'output': maybe(r, 'outputfile').split('data/')[1],
             'activity': maybe(r, 'act').split('/')[-1][:8]
@@ -420,6 +422,7 @@ def query_provenance_for_last_epoch(name, draw=False, target=None):
         data, showindex=True,
         headers={"keywords": "keywords", "input": "input", "output": "output", "activity": "activity"}))
 
+    # TODO: presentation layer should be moved away from sparql module
     if draw:
         try:
             import networkx as nx
