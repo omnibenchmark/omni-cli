@@ -4,13 +4,14 @@ from rdflib import URIRef, BNode, Literal
 
 from SPARQLWrapper import SPARQLWrapper, JSON, POST
 
+from .config import get_annotation_endpoint_update
 from .project import project_info
 from .sparql import get_last_run_by_name, query_last_activity_by_project
 
 OMNI = Namespace("http://omnibenchmark.org/ns#")
 OMNI_RUN = Namespace("http://omnibenchmark.org/run/")
 PROV = Namespace("http://www.w3.org/ns/prov#")
-LOCAL_ENDPOINT = "http://localhost:7878/update"
+
 
 def do_begin_epoch(benchmark_name):
     """
@@ -125,17 +126,20 @@ def add_annotation_triples(activity, run):
     g.add((URIRef(activity), PROV.wasStartedBy, URIRef(run)))
     insert(g)
 
-
-def insert(g):
+def insert(g, annotation=False):
     updatequery = "\n".join([f"PREFIX {prefix}: {ns.n3()}" for prefix, ns in g.namespaces()])
     updatequery += f"\nINSERT DATA {{"
     updatequery += " .\n".join([f"\t\t{s.n3()} {p.n3()} {o.n3()}" for (s, p, o) in g.triples((None, None, None))])
     updatequery += f" . \n\n}}\n"
-    insert_triples(updatequery)
 
-def insert_triples(queryString):
-    sparql = SPARQLWrapper(LOCAL_ENDPOINT)
+    endpoint = get_annotation_endpoint_update()
+    insert_triples(updatequery, endpoint=endpoint)
+
+def insert_triples(queryString, endpoint=None):
+    # TODO: add authentication for endpoint
+    if endpoint is None:
+        endpoint = LOCAL_ENDPOINT
+    sparql = SPARQLWrapper(endpoint)
     sparql.setQuery(queryString)
     sparql.setMethod(POST)
     ret = sparql.queryAndConvert()
-

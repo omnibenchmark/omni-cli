@@ -197,9 +197,10 @@ def add_graph_commands():
     graph.add_command(status)
 
     @click.command()
-    def run():
+    @click.option('--annotations', is_flag=True, type=click.BOOL, default=False, help='Run the separate annotations endpoint')
+    def run(annotations=False):
         click.echo(f"Running local SPARQL endpoint")
-        run_local_graph()
+        run_local_graph(annotations=annotations)
 
     graph.add_command(run)
 
@@ -270,7 +271,7 @@ def add_query_commands():
 
     @click.command()
     @click.argument('name')
-    @click.option('--draw', type=click.BOOL, default=False, help='Draw provenance DAG')
+    @click.option('--draw', type=click.BOOL, is_flag=True, default=False, help='Draw provenance DAG')
     @click.option('--target', type=click.STRING, default=None, help='Filter by file')
     def provenance(name, draw, target):
         """Query file provenance for a given benchmark"""
