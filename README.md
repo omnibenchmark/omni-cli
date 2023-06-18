@@ -32,7 +32,11 @@ Options:
 Commands:
   bench     Inspect benchmarks
   dataset   Inspect datasets
+  docker    Manipulate local docker images used for workflow runs
+  epoch     Query and manipulate Orchestrator Epochs in the Knowledge...
+  graph     Local knowledge graph operations
   init      Initialize omnibenchmark cache
+  query     Query the local graph
   update    Update omnibenchmark cache
   workflow  Interacts with workflows
 

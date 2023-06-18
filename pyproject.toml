@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "omnibench-cli"
-version = "1.0.1"
+version = "1.0.2"
 description = ""
 authors = ["btraven <btraven@sdf.org>"]
 readme = "README.md"
