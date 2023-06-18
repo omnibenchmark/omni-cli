@@ -2,14 +2,23 @@
 
 A command line interface to query and access datasets and workflows project-wide across omnibenchmark.
 
-## Use
+## Install
 
-Until this project reaches enough maturity to be published in pypi, you can use `poetry` to use it:
+Install via pip:
+
+```
+pip install omnibench-cli
+```
+
+While developing, you can use poetry:
 
 ```
 pip install poetry
 poetry shell
 ```
+
+## Use
+
 
 ```zsh
 ❯ omni_cli
