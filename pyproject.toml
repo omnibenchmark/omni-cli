@@ -34,7 +34,7 @@ sparqlwrapper = "^2.0.0"
 # calamus = {git = "https://github.com/btraven00/calamus", rev = "master"}
 # omnibenchmark = {git = "https://github.com/omnibenchmark/omnibenchmark-py"} #, rev = "0.0.43"}
 calamus = "^0.4.2"
-omnibenchmark = ">=0.0.44"
+omnibenchmark = "^0.0.43"
 
 [tool.poetry.scripts]
 omni_cli = 'omni_cli.cli:run'

@@ -1370,13 +1370,13 @@ files = [
 
 [[package]]
 name = "omnibenchmark"
-version = "0.0.44"
+version = "0.0.43"
 description = "Omnibenchmark core utilities: Setup and running of continous benchmarking modules as part of omnibenchmark"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "omnibenchmark-0.0.44-py3-none-any.whl", hash = "sha256:dddf275d0911b0ef40bd383b98c3c2b53bad501691d9e71e2353da5bd3ee8ad6"},
-    {file = "omnibenchmark-0.0.44.tar.gz", hash = "sha256:675f8ca0540cb85a03c44ba304cc5564ad6b6b8afbc8e2334788d5827ef75fab"},
+    {file = "omnibenchmark-0.0.43-py3-none-any.whl", hash = "sha256:3eb9f40ac74b9332afa8ec79d4fe5f08bb90d8ab9c01c845fc9954fd95fd507f"},
+    {file = "omnibenchmark-0.0.43.tar.gz", hash = "sha256:44f8b6a7533b90073229d8bb73e68963e10300047c2c3741aa7017344cadae3f"},
 ]
 
 [package.dependencies]
@@ -2842,4 +2842,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "843ea5e1d5684757b63f36608d3bfde7c33aecf0b7506f5c73636a7c27ccb645"
+content-hash = "7eda9f309aaec134237708933f4328d414e4bb7d94e099bde0bcedf51d10ef82"
