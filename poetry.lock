@@ -185,27 +185,23 @@ files = [
 
 [[package]]
 name = "calamus"
-version = "0.4.3"
+version = "0.4.2"
 description = "calamus is a library built on top of marshmallow to allow (de-)Serialization of Python classes to JSON-LD."
 optional = false
-python-versions = ">=3.8.1,<4.0.0"
-files = []
-develop = false
+python-versions = ">=3.7.1,<4.0.0"
+files = [
+    {file = "calamus-0.4.2-py3-none-any.whl", hash = "sha256:3d1121a379ee850a44de540ce091ae8482d539c6257a711b471cfbe0ee5a1e39"},
+    {file = "calamus-0.4.2.tar.gz", hash = "sha256:86a3b52aa737062c291e0f4cd7cdebc2e8aee9d88292982770b426dc1f086212"},
+]
 
 [package.dependencies]
-lazy-object-proxy = "^1.4.3"
-marshmallow = "^3.14.0"
-pyld = "^2.0.2"
-rdflib = "^6.0.0"
+lazy-object-proxy = ">=1.4.3,<2.0.0"
+marshmallow = ">=3.14.0,<4.0.0"
+pyld = ">=2.0.2,<3.0.0"
+rdflib = ">=6.0.0,<7.0.0"
 
 [package.extras]
 docs = ["Jinja2 (>=3.0.0,<3.1.0)", "sphinx (>=3.0.3,<4.0.0)", "sphinx-rtd-theme (>=0.4.3,<0.5.0)", "sphinxcontrib-spelling (>=5.0.0,<6.0.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/btraven00/calamus"
-reference = "master"
-resolved_reference = "b7ee469a7fed4ce1d1cda0842f97b178fefaacd6"
 
 [[package]]
 name = "certifi"
@@ -1374,15 +1370,17 @@ files = [
 
 [[package]]
 name = "omnibenchmark"
-version = "0.0.43"
+version = "0.0.44"
 description = "Omnibenchmark core utilities: Setup and running of continous benchmarking modules as part of omnibenchmark"
 optional = false
 python-versions = ">=3.8"
-files = []
-develop = false
+files = [
+    {file = "omnibenchmark-0.0.44-py3-none-any.whl", hash = "sha256:dddf275d0911b0ef40bd383b98c3c2b53bad501691d9e71e2353da5bd3ee8ad6"},
+    {file = "omnibenchmark-0.0.44.tar.gz", hash = "sha256:675f8ca0540cb85a03c44ba304cc5564ad6b6b8afbc8e2334788d5827ef75fab"},
+]
 
 [package.dependencies]
-iteration_utilities = "*"
+iteration-utilities = "*"
 lxml = "*"
 python-gitlab = "*"
 renku = "2.4.1"
@@ -1392,12 +1390,6 @@ typeguard = "3.0.2"
 
 [package.extras]
 dev = ["black", "bumpver", "mypy", "pytest"]
-
-[package.source]
-type = "git"
-url = "https://github.com/omnibenchmark/omnibenchmark-py"
-reference = "HEAD"
-resolved_reference = "6a75a13175ad3e1d0bc03a92afaa0302d97a3e2e"
 
 [[package]]
 name = "ordered-set"
@@ -2528,13 +2520,13 @@ files = [
 
 [[package]]
 name = "websocket-client"
-version = "1.5.3"
+version = "1.6.0"
 description = "WebSocket client for Python with low level API options"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "websocket-client-1.5.3.tar.gz", hash = "sha256:b96f3bce3e54e3486ebe6504bc22bd4c140392bd2eb71764db29be8f2639aa65"},
-    {file = "websocket_client-1.5.3-py3-none-any.whl", hash = "sha256:3566f8467cd350874c4913816355642a4942f6c1ed1e9406e3d42fae6d6c072a"},
+    {file = "websocket-client-1.6.0.tar.gz", hash = "sha256:e84c7eafc66aade6d1967a51dfd219aabdf81d15b9705196e11fd81f48666b78"},
+    {file = "websocket_client-1.6.0-py3-none-any.whl", hash = "sha256:72d7802608745b0a212f79b478642473bd825777d8637b6c8c421bf167790d4f"},
 ]
 
 [package.extras]
@@ -2850,4 +2842,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "a05639e5419c717a2ab75614e0601b1db6aea05d35ea984b4cfc5b49e2048039"
+content-hash = "843ea5e1d5684757b63f36608d3bfde7c33aecf0b7506f5c73636a7c27ccb645"
